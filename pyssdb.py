@@ -209,7 +209,7 @@ class Client(object):
         self.connection_pool.idle_connections.append(connection)
 
     @command_post_processing
-    def execute_command(self, cmd, *args):
+    def execute_command(self, cmd, *args, **kwds):
         connection = self.connection_pool.get_connection()
         try:
             connection.send(cmd, *args)
@@ -219,6 +219,8 @@ class Client(object):
             raise
         else:
             self.connection_pool.release(connection)
+            if isinstance(data, bytes) and not kwds.get('bin'):
+                data = data.decode('utf-8')
             return data
 
     def disconnect(self):
